@@ -27,3 +27,12 @@ jerry_speed = 8
 jerry_score = 0
 is_dead = False  # Added death state like code 2
 
+
+def normalize_angle(angle):
+    """Normalize angle to 0-360 range."""
+    while angle > 360:
+        angle -= 360
+    while angle < 0:
+        angle += 360
+    return angle
+
