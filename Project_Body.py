@@ -1,4 +1,5 @@
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
-print ("Imported OpenGL modules successfully.")
+
+print("Imported OpenGL modules successfully.")
