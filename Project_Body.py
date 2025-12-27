@@ -1,9 +1,7 @@
 from OpenGL.GL import *
 from OpenGL.GLUT import *
 from OpenGL.GLU import *
-print("Project_Body module loaded successfully.")
-print("yasin thesis ki hbe amader")
-print("insahllah")
+
 
 # Camera-related variables
 camera_pos = (0, 600, 400)
