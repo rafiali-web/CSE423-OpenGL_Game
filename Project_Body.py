@@ -52,3 +52,31 @@ diamond_base_size = 25  # Increased base size for better visibility
 diamond_fall_duration = 5  # Diamond stays for 3.5 seconds (3-4 sec range)
 diamond_pulse = 5.0  # Added fattening effect like code 2
 elapsed_time = 0.0  # Added elapsed time for diamond pulse
+
+
+
+
+
+# Game objects
+bullets = []
+cheat_ball = None
+cheat_ball_timer = 0
+cheat_ball_duration = 5
+cheat_ball_pulse = 5.0  # Added fattening effect like code 2
+enemies_distracted = False
+
+# Shield system
+shield_active = False
+shield_timer = 0
+shield_duration = 5
+
+# Enemy system
+enemy_alive = [True, True, True, True, True, True]
+enemy_respawn_timers = [0, 0, 0, 0, 0, 0]
+
+# Invisible boundary
+BOUNDARY_DISTANCE = 750
+
+# Tree system
+trees = []
+tree_count = 10
