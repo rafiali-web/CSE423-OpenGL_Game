@@ -80,3 +80,11 @@ BOUNDARY_DISTANCE = 750
 # Tree system
 trees = []
 tree_count = 10
+
+
+
+# Game state
+game_over = False
+game_won = False
+last_time = time.time()
+last_collision_time = 0
