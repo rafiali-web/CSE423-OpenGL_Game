@@ -13,19 +13,19 @@ bullets = []
 cheat_ball = None
 cheat_ball_timer = 0
 cheat_ball_duration = 5
-cheat_ball_pulse = 5.0  # Added fattening effect like code 2
+cheat_ball_pulse = 5.0 
 enemies_distracted = False
 
 
 
 print(10+10)
-# Game state variables
-jerry_pos = [0, 0, 30]  # 1.5x larger (was 20)
+
+jerry_pos = [0, 0, 30]  
 jerry_angle = 0
 jerry_lives = 10
 jerry_speed = 8
 jerry_score = 0
-is_dead = False  # Added death state like code 2
+is_dead = False 
 
 
 def normalize_angle(angle):
