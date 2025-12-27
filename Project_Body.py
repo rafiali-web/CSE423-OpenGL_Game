@@ -3,36 +3,9 @@ from OpenGL.GLUT import *
 from OpenGL.GLU import *
 print("Project_Body module loaded successfully.")
 
-print("new")
-print("10")
-print("new rafi")
-print("rafi was here")
-print ("rafi was NO here")
-print("YASIN WAS HERE")
-bullets = []
-cheat_ball = None
-cheat_ball_timer = 0
-cheat_ball_duration = 5
-cheat_ball_pulse = 5.0 
-enemies_distracted = False
 
 
 
-print(10+10)
-
-jerry_pos = [0, 0, 30]  
-jerry_angle = 0
-jerry_lives = 10
-jerry_speed = 8
-jerry_score = 0
-is_dead = False 
 
 
-def normalize_angle(angle):
-    """Normalize angle to 0-360 range."""
-    while angle > 360:
-        angle -= 360
-    while angle < 0:
-        angle += 360
-    return angle
 
