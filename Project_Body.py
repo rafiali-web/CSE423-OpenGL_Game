@@ -179,6 +179,131 @@ class Bullet:
 
 bullets = []
 
+# ==================== JUNGLE ENVIRONMENT ====================
+def create_jungle_environment():
+    """Create trees, rocks, and houses for the bustling arena."""
+    global trees, rocks, houses
+    
+    trees.clear()
+    rocks.clear()
+    houses.clear()
+    
+    # Create bustling environment
+    boundary = BOUNDARY_SIZE - 100
+    
+    # Create perimeter trees
+    trees_per_side = 40  # Increased perimeter trees
+    for i in range(trees_per_side):
+        # North side
+        x = -boundary + (i * (2 * boundary) / (trees_per_side - 1))
+        y = boundary
+        create_tree_at([x, y, 0], size_factor=random.uniform(1.5, 2.5))
+        
+        # South side
+        y = -boundary
+        create_tree_at([x, y, 0], size_factor=random.uniform(1.5, 2.5))
+        
+        # East side
+        x = boundary
+        y = -boundary + (i * (2 * boundary) / (trees_per_side - 1))
+        create_tree_at([x, y, 0], size_factor=random.uniform(1.5, 2.5))
+        
+        # West side
+        x = -boundary
+        create_tree_at([x, y, 0], size_factor=random.uniform(1.5, 2.5))
+    
+    # Random trees inside - more dense
+    for _ in range(tree_count):
+        x = random.randint(-boundary + 200, boundary - 200)
+        y = random.randint(-boundary + 200, boundary - 200)
+        create_tree_at([x, y, 0], size_factor=random.uniform(0.8, 1.8))
+    
+    # Colorful rocks - more dense
+    for _ in range(rock_count):
+        x = random.randint(-boundary + 200, boundary - 200)
+        y = random.randint(-boundary + 200, boundary - 200)
+        # Vibrant rock colors
+        rock_color = random.choice([
+            (0.8, 0.4, 0.2),  # Orange-brown
+            (0.6, 0.3, 0.7),  # Purple
+            (0.3, 0.6, 0.8),  # Blue
+            (0.7, 0.7, 0.3),  # Yellowish
+            (0.4, 0.8, 0.4),  # Green
+            (0.9, 0.5, 0.8)   # Pink
+        ])
+        rocks.append({
+            'pos': [x, y, 0],
+            'size': random.uniform(40, 100),
+            'color': rock_color,
+            'rotation': random.uniform(0, 360)
+        })
+    
+    # Create houses - bustling environment
+    for _ in range(house_count):
+        x = random.randint(-boundary + 300, boundary - 300)
+        y = random.randint(-boundary + 300, boundary - 300)
+        create_house_at([x, y, 0])
+
+def create_tree_at(pos, size_factor=1.0):
+    """Create a colorful tree."""
+    tree_height = random.uniform(150, 250) * size_factor
+    trunk_height = tree_height * 0.6
+    crown_height = tree_height * 0.4
+    
+    # Vibrant tree colors
+    crown_colors = [
+        (0.3, 0.9, 0.4),   # Bright green
+        (0.2, 0.95, 0.3),  # Lime green
+        (0.4, 0.85, 0.3),  # Forest green
+        (0.5, 0.9, 0.2),   # Light green
+        (0.3, 0.8, 0.5),   # Emerald
+        (0.4, 0.9, 0.3)    # Vibrant green
+    ]
+    
+    trees.append({
+        'pos': pos,
+        'trunk_height': trunk_height,
+        'trunk_radius': random.uniform(10, 20) * size_factor,
+        'crown_radius': random.uniform(50, 80) * size_factor,
+        'crown_height': crown_height,
+        'trunk_color': (random.uniform(0.4, 0.6), random.uniform(0.3, 0.4), random.uniform(0.2, 0.3)),
+        'crown_color': random.choice(crown_colors),
+        'type': random.choice(['pine', 'round', 'palm', 'oak'])
+    })
+
+def create_house_at(pos):
+    """Create a colorful house."""
+    house_height = random.uniform(80, 150)
+    house_width = random.uniform(60, 100)
+    house_depth = random.uniform(60, 100)
+    
+    # Colorful house colors
+    house_colors = [
+        (0.9, 0.6, 0.5),  # Peach
+        (0.7, 0.8, 0.9),  # Light blue
+        (0.8, 0.9, 0.7),  # Light green
+        (0.9, 0.8, 0.6),  # Beige
+        (0.8, 0.7, 0.9),  # Lavender
+        (0.6, 0.8, 0.8)   # Teal
+    ]
+    
+    roof_colors = [
+        (0.6, 0.3, 0.2),  # Brown
+        (0.5, 0.2, 0.1),  # Dark brown
+        (0.3, 0.3, 0.3),  # Dark gray
+        (0.4, 0.2, 0.1)   # Chocolate
+    ]
+    
+    houses.append({
+        'pos': pos,
+        'height': house_height,
+        'width': house_width,
+        'depth': house_depth,
+        'color': random.choice(house_colors),
+        'roof_color': random.choice(roof_colors),
+        'rotation': random.uniform(0, 360)
+    })
+
 
 
 
