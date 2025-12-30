@@ -848,6 +848,7 @@ def update_golden_keys():
 
 #start from here lapii
 
+
 # ==================== MAIN FUNCTION ====================
 def main():
     """Initialize and run the game."""
