@@ -5,13 +5,18 @@ import math
 import time
 import random
 
+# ==================== GAME CONSTANTS & VARIABLES ====================
 WINDOW_WIDTH = 1400
 WINDOW_HEIGHT = 1000
 
-# Player settings
-player_pos = [0, 0, 50]
+# Delta time variables
+last_frame_time = time.time()
+delta_time = 0.016
+
+# Player settings - FASTER MOVEMENT
+player_pos = [0, 0, 100]
 player_angle = 0
-player_speed = 50
+player_speed = 600
 player_health = 5
 max_health = 5
 player_score = 0
@@ -22,44 +27,64 @@ dash_timer = 0
 dash_duration = 0.5
 dash_cooldown = 0
 dash_cooldown_duration = 2.0
-dash_speed_multiplier = 3.0
+dash_speed_multiplier = 4.0
 
-# Health bar colors (5 parts) - from green (full) to red (low)
+# Fire gun settings
+fire_gun_active = False
+fire_gun_cooldown = 0
+fire_gun_cooldown_duration = 1.0
+
+# ==================== LEVEL SYSTEM ====================
+current_level = 1
+max_level = 10
+level_complete = False
+level_transition_timer = 0
+level_transition_duration = 3.0
+enemies_killed_this_level = 0
+enemies_required_per_level = [15, 25, 35, 45, 60, 75, 90, 110, 130, 150]
+
+# Random shirt colors
+shirt_colors = [
+    (0.0, 0.0, 0.8),    # Blue
+    (0.5, 0.0, 0.5),    # Purple
+    (0.8, 0.0, 0.0),    # Red
+    (0.0, 0.6, 0.0),    # Green
+    (0.8, 0.5, 0.0),    # Orange
+    (0.0, 0.6, 0.6),    # Cyan
+]
+current_shirt_color = random.choice(shirt_colors)
+
+# Health bar colors
 HEALTH_COLORS = [
-    (1.0, 0.0, 0.0),    # Red - lowest health
+    (1.0, 0.0, 0.0),    # Red
     (1.0, 0.5, 0.0),    # Orange
     (1.0, 1.0, 0.0),    # Yellow
-    (0.8, 1.0, 0.0),    # Light Green
-    (0.0, 1.0, 0.0)     # Green - full health
+    (0.5, 1.0, 0.0),    # Yellow-Green
+    (0.0, 1.0, 0.0)     # Green
 ]
 
-# Arena boundaries
-ARENA_SIZE = 8000
+# Arena boundaries - MADE SMALLER
+ARENA_SIZE = 5000
 BOUNDARY_SIZE = ARENA_SIZE - 400
 GROUND_Z = 0
 
-# Camera settings - Drone-like camera following player
-camera_distance = 1200  # Increased to thrice the distance
-camera_height = 600     # Increased height for better view
-camera_angle = 0  # For orbiting around player
+# Camera settings - CHANGED: Now follows from behind
+camera_distance = 800  # Distance behind player
+camera_height = 500    # Height above player
+fovY = 90
+wide_fov = 120
+normal_fov = 90
+fov_wide_mode = False
 
-# Environment settings - More bustling
-tree_count = 300        # Increased trees
-rock_count = 150        # Increased rocks
-house_count = 30        # Added houses
-
-
-# Environment settings - More bustling
-tree_count = 300        # Increased trees
-rock_count = 150        # Increased rocks
-house_count = 30        # Added houses
-
-# Jungle environment
+# Environment
+tree_count = 300
+rock_count = 150
+house_count = 30
 trees = []
 rocks = []
 houses = []
 
-# Diamond spawn management
+# Diamonds
 last_diamond_spawn = time.time()
 diamond_spawn_interval = 4.0
 ground_diamonds = []
@@ -68,77 +93,99 @@ regular_diamond_score = 10
 special_diamond_health = 1
 diamond_ground_lifetime = 10
 
-# ==================== ENEMIES SYSTEM ====================
+# ==================== ENEMIES ====================
 class Enemy:
     def __init__(self, enemy_type, pos):
-        self.type = enemy_type  # 0: stationary (red human), 1: patrolling (giant), 2: chasing (dinosaur)
+        self.type = enemy_type
         self.pos = pos.copy()
         self.alive = True
         self.angle = random.uniform(0, 360)
         self.patrol_center = pos.copy()
         self.patrol_radius = 400
         self.patrol_angle = 0
-        self.patrol_speed = 1
+        self.patrol_speed = 60
         
-        # Enemy health based on type
-        if enemy_type == 0:  # Stationary - 1 bullet to kill
+        # Type 0: Stationary Human with shooting ability
+        if enemy_type == 0:
             self.health = 1
             self.max_health = 1
             self.radius = 40
             self.size = 60
-            self.color = (1.0, 0.0, 0.0)  # Bright red
-            self.speed = 0  # Stationary
-        elif enemy_type == 1:  # Patrolling (giant) - 2 bullets to kill
+            self.color = (1.0, 0.0, 0.0)
+            self.speed = 0
+            self.score_value = 50
+            self.shoot_cooldown = 0
+            self.shoot_interval = 3.0
+            
+        # Type 1: Patrolling Giant
+        elif enemy_type == 1:
             self.health = 2
             self.max_health = 2
-            self.radius = 120  # 3x bigger
-            self.size = 180    # 3x bigger
-            self.color = (0.8, 0.6, 0.4)  # Brownish giant
-            self.speed = 1.5
-        else:  # Chasing (dinosaur) - 3 bullets to kill, speed doubled
+            self.radius = 120
+            self.size = 180
+            self.color = (0.8, 0.6, 0.4)
+            self.speed = 80
+            self.score_value = 100
+            
+        # Type 2: Chasing Dinosaur
+        elif enemy_type == 2:
             self.health = 3
             self.max_health = 3
             self.radius = 80
             self.size = 100
-            self.color = (0.4, 0.8, 0.2)  # Green dinosaur
-            self.speed = 4.0  # Doubled speed
+            self.color = (0.4, 0.8, 0.2)
+            self.speed = 240
+            self.score_value = 150
+        
+        else:
+            self.health = 1
+            self.max_health = 1
+            self.radius = 40
+            self.size = 60
+            self.color = (0.5, 0.5, 0.5)
+            self.speed = 100
+            self.score_value = 50
         
         self.damage_timer = 0
         self.damage_duration = 0.3
 
-# Initialize enemies
 enemies = []
-# Stationary enemies (red humans) - 10 total
-stationary_positions = set()
-for _ in range(10):
-    while True:
-        x = random.randint(-BOUNDARY_SIZE + 500, BOUNDARY_SIZE - 500)
-        y = random.randint(-BOUNDARY_SIZE + 500, BOUNDARY_SIZE - 500)
-        pos = (x, y)
-        if pos not in stationary_positions:
-            stationary_positions.add(pos)
-            enemies.append(Enemy(0, [x, y, 40]))
-            break
 
-# Patrolling enemies (giants) - 5 total
-for _ in range(5):
-    x = random.randint(-BOUNDARY_SIZE + 500, BOUNDARY_SIZE - 500)
-    y = random.randint(-BOUNDARY_SIZE + 500, BOUNDARY_SIZE - 500)
-    enemies.append(Enemy(1, [x, y, 40]))
+# ==================== ENEMY PROJECTILES ====================
+class EnemyProjectile:
+    def __init__(self, pos, target_pos):
+        self.pos = pos.copy()
+        self.alive = True
+        self.radius = 15
+        self.color = (1.0, 0.3, 0.0)
+        self.damage = 1
+        
+        # Calculate direction towards player
+        dx = target_pos[0] - pos[0]
+        dy = target_pos[1] - pos[1]
+        dist = math.sqrt(dx*dx + dy*dy)
+        
+        if dist > 0:
+            self.velocity_x = (dx / dist) * 300
+            self.velocity_y = (dy / dist) * 300
+        else:
+            self.velocity_x = 0
+            self.velocity_y = 0
+        
+        # Projectile motion
+        self.velocity_z = 200
+        self.gravity = 300
+        self.lifetime = 0
+        self.max_lifetime = 5.0
 
-# Chasing enemies (dinosaurs) - Will spawn one by one
-chasing_enemies_to_spawn = 8  # Total dinosaurs to spawn
-chasing_enemies_spawned = 0
-last_chasing_spawn = time.time()
-chasing_spawn_interval = 10  # Spawn a new dinosaur every 10 seconds
+enemy_projectiles = []
 
-
-# ==================== DIAMONDS SYSTEM ====================
+# ==================== DIAMONDS ====================
 class Diamond:
     def __init__(self, pos, diamond_type=0):
         self.pos = pos.copy()
         self.type = diamond_type
-        self.fall_speed = random.uniform(15, 25)
+        self.fall_speed = random.uniform(80, 120)
         self.collected = False
         self.spawn_time = time.time()
         self.radius = 75
@@ -146,167 +193,126 @@ class Diamond:
         self.pulse_speed = 5.0
         self.on_ground = False
         self.ground_time = 0
-        self.glitter_particles = []
+        self.rotation_angle = 0.0
         
         if diamond_type == 0:
-            self.color = (0.0, 1.0, 1.0)  # Cyan
+            self.color = (0.0, 1.0, 1.0)
         else:
-            self.color = (1.0, 0.84, 0.0)  # Golden
-            
-        if diamond_type == 1:
-            for _ in range(20):
-                self.glitter_particles.append({
-                    'pos': [0, 0, 0],
-                    'vel': [random.uniform(-5, 5), random.uniform(-5, 5), random.uniform(2, 8)],
-                    'size': random.uniform(2, 5),
-                    'life': random.uniform(0.5, 1.5)
-                })
+            self.color = (1.0, 0.84, 0.0)
 
-# ==================== BULLETS SYSTEM ====================
+# ==================== BULLETS ====================
 class Bullet:
     def __init__(self, pos, angle, bullet_type=0):
-        # Bullet comes from gun direction
         self.pos = pos.copy()
         self.angle = angle
         self.type = bullet_type
-        self.speed = 40 if bullet_type == 0 else 25
-        self.radius = 8
+        self.speed = 600 if bullet_type == 0 else 400
+        self.radius = 8 if bullet_type == 0 else 20
         self.alive = True
         self.distance_traveled = 0
         self.max_distance = 800
         
-        if bullet_type == 0:
-            self.color = (1.0, 1.0, 0.0)  # Yellow
+        if bullet_type == 2:
+            self.speed = 450
+            self.radius = 30
+            self.color = (1.0, 0.3, 0.0)
+            self.gravity = 200
+            self.velocity_z = 250
+            self.trail = []
+        elif bullet_type == 0:
+            self.color = (1.0, 1.0, 0.0)
             self.trail = []
         else:
-            self.color = (1.0, 0.5, 0.0)  # Orange
+            self.color = (1.0, 0.5, 0.0)
 
 bullets = []
 
-# ==================== JUNGLE ENVIRONMENT ====================
-def create_jungle_environment():
-    """Create trees, rocks, and houses for the bustling arena."""
-    global trees, rocks, houses
+# ==================== LEVEL MANAGEMENT ====================
+def get_level_info():
+    level_configs = {
+        1: {"name": "Level 1", "description": "Starting challenge", "enemies": [0, 0, 1]},
+        2: {"name": "Level 2", "description": "More enemies", "enemies": [0, 0, 1, 1, 2]},
+        3: {"name": "Level 3", "description": "Getting tough", "enemies": [0, 1, 1, 2, 2]},
+        4: {"name": "Level 4", "description": "Many foes", "enemies": [0, 1, 2, 2, 2]},
+        5: {"name": "Level 5", "description": "Halfway there", "enemies": [1, 1, 2, 2, 2]},
+        6: {"name": "Level 6", "description": "Heavy assault", "enemies": [0, 1, 1, 2, 2, 2]},
+        7: {"name": "Level 7", "description": "Intense battle", "enemies": [1, 1, 2, 2, 2, 2]},
+        8: {"name": "Level 8", "description": "Near the end", "enemies": [1, 2, 2, 2, 2, 2]},
+        9: {"name": "Level 9", "description": "Almost done", "enemies": [2, 2, 2, 2, 2, 2]},
+        10: {"name": "Level 10 - FINAL", "description": "Final challenge!", "enemies": [1, 2, 2, 2, 2, 2, 2]},
+    }
     
-    trees.clear()
-    rocks.clear()
-    houses.clear()
-    
-    # Create bustling environment
-    boundary = BOUNDARY_SIZE - 100
-    
-    # Create perimeter trees
-    trees_per_side = 40  # Increased perimeter trees
-    for i in range(trees_per_side):
-        # North side
-        x = -boundary + (i * (2 * boundary) / (trees_per_side - 1))
-        y = boundary
-        create_tree_at([x, y, 0], size_factor=random.uniform(1.5, 2.5))
-        
-        # South side
-        y = -boundary
-        create_tree_at([x, y, 0], size_factor=random.uniform(1.5, 2.5))
-        
-        # East side
-        x = boundary
-        y = -boundary + (i * (2 * boundary) / (trees_per_side - 1))
-        create_tree_at([x, y, 0], size_factor=random.uniform(1.5, 2.5))
-        
-        # West side
-        x = -boundary
-        create_tree_at([x, y, 0], size_factor=random.uniform(1.5, 2.5))
-    
-    # Random trees inside - more dense
-    for _ in range(tree_count):
-        x = random.randint(-boundary + 200, boundary - 200)
-        y = random.randint(-boundary + 200, boundary - 200)
-        create_tree_at([x, y, 0], size_factor=random.uniform(0.8, 1.8))
-    
-    # Colorful rocks - more dense
-    for _ in range(rock_count):
-        x = random.randint(-boundary + 200, boundary - 200)
-        y = random.randint(-boundary + 200, boundary - 200)
-        # Vibrant rock colors
-        rock_color = random.choice([
-            (0.8, 0.4, 0.2),  # Orange-brown
-            (0.6, 0.3, 0.7),  # Purple
-            (0.3, 0.6, 0.8),  # Blue
-            (0.7, 0.7, 0.3),  # Yellowish
-            (0.4, 0.8, 0.4),  # Green
-            (0.9, 0.5, 0.8)   # Pink
-        ])
-        rocks.append({
-            'pos': [x, y, 0],
-            'size': random.uniform(40, 100),
-            'color': rock_color,
-            'rotation': random.uniform(0, 360)
-        })
-    
-    # Create houses - bustling environment
-    for _ in range(house_count):
-        x = random.randint(-boundary + 300, boundary - 300)
-        y = random.randint(-boundary + 300, boundary - 300)
-        create_house_at([x, y, 0])
+    return level_configs.get(current_level, level_configs[1])
 
-def create_tree_at(pos, size_factor=1.0):
-    """Create a colorful tree."""
-    tree_height = random.uniform(150, 250) * size_factor
-    trunk_height = tree_height * 0.6
-    crown_height = tree_height * 0.4
+def spawn_enemies_for_level():
+    global enemies
     
-    # Vibrant tree colors
-    crown_colors = [
-        (0.3, 0.9, 0.4),   # Bright green
-        (0.2, 0.95, 0.3),  # Lime green
-        (0.4, 0.85, 0.3),  # Forest green
-        (0.5, 0.9, 0.2),   # Light green
-        (0.3, 0.8, 0.5),   # Emerald
-        (0.4, 0.9, 0.3)    # Vibrant green
-    ]
+    enemies.clear()
+    level_info = get_level_info()
     
-    trees.append({
-        'pos': pos,
-        'trunk_height': trunk_height,
-        'trunk_radius': random.uniform(10, 20) * size_factor,
-        'crown_radius': random.uniform(50, 80) * size_factor,
-        'crown_height': crown_height,
-        'trunk_color': (random.uniform(0.4, 0.6), random.uniform(0.3, 0.4), random.uniform(0.2, 0.3)),
-        'crown_color': random.choice(crown_colors),
-        'type': random.choice(['pine', 'round', 'palm', 'oak'])
-    })
+    enemy_types = level_info["enemies"]
+    enemies_per_type = 5 + current_level * 2
+    
+    for enemy_type in enemy_types:
+        for _ in range(enemies_per_type):
+            angle = random.uniform(0, 360)
+            distance = random.uniform(500, BOUNDARY_SIZE - 200)
+            x = distance * math.cos(math.radians(angle))
+            y = distance * math.sin(math.radians(angle))
+            z = 40
+            
+            enemy = Enemy(enemy_type, [x, y, z])
+            
+            # Scale health with level
+            difficulty_multiplier = 1 + (current_level - 1) * 0.3
+            enemy.health = int(enemy.health * difficulty_multiplier)
+            enemy.max_health = enemy.health
+            
+            enemies.append(enemy)
 
-def create_house_at(pos):
-    """Create a colorful house."""
-    house_height = random.uniform(80, 150)
-    house_width = random.uniform(60, 100)
-    house_depth = random.uniform(60, 100)
+def check_level_completion():
+    global level_complete, level_transition_timer, enemies_killed_this_level
     
-    # Colorful house colors
-    house_colors = [
-        (0.9, 0.6, 0.5),  # Peach
-        (0.7, 0.8, 0.9),  # Light blue
-        (0.8, 0.9, 0.7),  # Light green
-        (0.9, 0.8, 0.6),  # Beige
-        (0.8, 0.7, 0.9),  # Lavender
-        (0.6, 0.8, 0.8)   # Teal
-    ]
+    if level_complete:
+        return
     
-    roof_colors = [
-        (0.6, 0.3, 0.2),  # Brown
-        (0.5, 0.2, 0.1),  # Dark brown
-        (0.3, 0.3, 0.3),  # Dark gray
-        (0.4, 0.2, 0.1)   # Chocolate
-    ]
+    required = enemies_required_per_level[min(current_level - 1, len(enemies_required_per_level) - 1)]
+    if enemies_killed_this_level >= required:
+        level_complete = True
+        level_transition_timer = level_transition_duration
+
+def advance_level():
+    global current_level, level_complete, enemies_killed_this_level, player_pos, player_angle
     
-    houses.append({
-        'pos': pos,
-        'height': house_height,
-        'width': house_width,
-        'depth': house_depth,
-        'color': random.choice(house_colors),
-        'roof_color': random.choice(roof_colors),
-        'rotation': random.uniform(0, 360)
-    })
+    if current_level >= max_level:
+        return
+    
+    current_level += 1
+    level_complete = False
+    enemies_killed_this_level = 0
+    
+    randomize_player_position()
+    create_jungle_environment()
+    spawn_enemies_for_level()
+
+def update_level_transition():
+    global level_transition_timer
+    
+    if level_complete and level_transition_timer > 0:
+        level_transition_timer -= delta_time
+        
+        if level_transition_timer <= 0:
+            advance_level()
+
+def randomize_player_position():
+    global player_pos, player_angle
+    
+    safe_zone = BOUNDARY_SIZE - 1000
+    player_pos[0] = random.uniform(-safe_zone, safe_zone)
+    player_pos[1] = random.uniform(-safe_zone, safe_zone)
+    player_pos[2] = 100
+    
+    player_angle = random.uniform(0, 360)
 # ==================== UTILITY FUNCTIONS ====================
 def distance_2d(pos1, pos2):
     return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)
