@@ -797,7 +797,7 @@ def draw_enemy(enemy):
         draw_patrolling_enemy(enemy)
     else:  # Chasing - dinosaur
         draw_chasing_enemy(enemy)
-
+# ==================== DIAMOND DRAWING ====================
 def draw_diamond(diamond):
     """Draw a diamond with effects."""
     if diamond.collected:
