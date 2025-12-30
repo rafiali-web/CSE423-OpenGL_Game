@@ -183,28 +183,41 @@ class Diamond:
             self.color = (1.0, 0.84, 0.0)
 
 # ==================== BULLETS ====================
+# ==================== BULLETS ====================
 class Bullet:
     def __init__(self, pos, angle, bullet_type=0):
         self.pos = pos.copy()
         self.angle = angle
         self.type = bullet_type
-        self.speed = 600 if bullet_type == 0 else 400
-        self.radius = 8 if bullet_type == 0 else 20
         self.alive = True
         self.distance_traveled = 0
-        self.max_distance = 800
         
-        if bullet_type == 2:
+        # Type 0: Pistol (1 damage, long range)
+        if bullet_type == 0:
+            self.speed = 600
+            self.radius = 8
+            self.max_distance = 15000
+            self.damage = 1
+            self.color = (1.0, 1.0, 0.0)
+            self.trail = []
+        
+        # Type 2: Cannon (5 DAMAGE - ONE-SHOTS ALL ENEMIES, short range, arc trajectory)
+        elif bullet_type == 2:
             self.speed = 450
             self.radius = 30
+            self.max_distance = 800
+            self.damage = 5  # HIGHEST DAMAGE - ONE-SHOT KILL
             self.color = (1.0, 0.3, 0.0)
             self.gravity = 200
             self.velocity_z = 250
             self.trail = []
-        elif bullet_type == 0:
-            self.color = (1.0, 1.0, 0.0)
-            self.trail = []
+        
+        # Default fallback
         else:
+            self.speed = 400
+            self.radius = 20
+            self.max_distance = 800
+            self.damage = 1
             self.color = (1.0, 0.5, 0.0)
 
 bullets = []
