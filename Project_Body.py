@@ -1252,7 +1252,14 @@ def create_jungle_environment():
         create_house_at([x, y, 0])
 
 
-#START UPDATING FUNCTIONS HERE
+# ==================== UPDATE FUNCTIONS ====================
+def update_delta_time():
+    global last_frame_time, delta_time
+    current_time = time.time()
+    delta_time = current_time - last_frame_time
+    last_frame_time = current_time
+    if delta_time > 0.1:
+        delta_time = 0.016
 
 
 # ==================== MAIN FUNCTION ====================
