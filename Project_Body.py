@@ -721,7 +721,64 @@ def update_enemy_shooting():
                 enemy_projectiles.append(projectile)
                 
                 enemy.shoot_cooldown = enemy.shoot_interval
-#SAJID START FROM HERE
+                
+                
+def draw_enemy_projectile(projectile):
+    if not projectile.alive:
+        return
+    
+    glPushMatrix()
+    glTranslatef(projectile.pos[0], projectile.pos[1], projectile.pos[2])
+    
+    glColor3f(1.0, 0.2, 0.0)
+    gluSphere(gluNewQuadric(), projectile.radius, 12, 12)
+    
+    glColor3f(1.0, 0.6, 0.0)
+    gluSphere(gluNewQuadric(), projectile.radius * 0.7, 10, 10)
+    
+    glColor3f(1.0, 1.0, 0.5)
+    gluSphere(gluNewQuadric(), projectile.radius * 0.4, 8, 8)
+    
+    glPopMatrix()
+
+def update_enemy_projectiles():
+    global player_health, is_dead
+    
+    if game_paused:
+        return
+    
+    for projectile in enemy_projectiles[:]:
+        if not projectile.alive:
+            enemy_projectiles.remove(projectile)
+            continue
+        
+        projectile.pos[0] += projectile.velocity_x * delta_time
+        projectile.pos[1] += projectile.velocity_y * delta_time
+        
+        projectile.velocity_z -= projectile.gravity * delta_time
+        projectile.pos[2] += projectile.velocity_z * delta_time
+        
+        if projectile.pos[2] <= GROUND_Z:
+            projectile.alive = False
+            continue
+        
+        projectile.lifetime += delta_time
+        if projectile.lifetime > projectile.max_lifetime:
+            projectile.alive = False
+            continue
+        
+        if check_boundary_collision(projectile.pos):
+            projectile.alive = False
+            continue
+        
+        if distance_3d(projectile.pos, player_pos) < (projectile.radius + 40):
+            player_health -= projectile.damage
+            projectile.alive = False
+            
+            if player_health <= 0:
+                is_dead = True
+                player_health = 0
+            continue
 
 
 # ==================== MAIN FUNCTION ====================
