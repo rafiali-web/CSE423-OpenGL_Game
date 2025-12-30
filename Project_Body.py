@@ -1376,6 +1376,79 @@ def update_bullets():
                 break           
 
 
+
+
+def update_diamonds():   #YASIN
+    global last_diamond_spawn, player_score, player_health, falling_diamonds, ground_diamonds
+    
+    if game_paused:
+        return
+    
+    current_time = time.time()
+    
+    if current_time - last_diamond_spawn > diamond_spawn_interval and not is_dead:
+        x = player_pos[0] + random.randint(-500, 500)
+        y = player_pos[1] + random.randint(-500, 500)
+        
+        x = max(-BOUNDARY_SIZE + 100, min(x, BOUNDARY_SIZE - 100))
+        y = max(-BOUNDARY_SIZE + 100, min(y, BOUNDARY_SIZE - 100))
+        
+        diamond_type = 1 if random.random() < 0.25 else 0
+        diamond = Diamond([x, y, 500], diamond_type)
+        falling_diamonds.append(diamond)
+        
+        last_diamond_spawn = current_time
+    
+    for diamond in falling_diamonds[:]:
+        diamond.pulse += diamond.pulse_speed * delta_time
+        diamond.rotation_angle += 90 * delta_time
+        diamond.pos[2] -= diamond.fall_speed * delta_time
+        
+        if diamond.pos[2] <= GROUND_Z + diamond.radius + 50:
+            diamond.pos[2] = GROUND_Z + diamond.radius + 50
+            diamond.on_ground = True
+            diamond.ground_time = current_time
+            
+            falling_diamonds.remove(diamond)
+            ground_diamonds.append(diamond)
+            continue
+        
+        if (not diamond.collected and distance_3d(diamond.pos, player_pos) < 50):
+            diamond.collected = True
+            if diamond.type == 0:
+                player_score += regular_diamond_score
+            else:
+                if player_health < max_health:
+                    player_health += special_diamond_health
+            
+            falling_diamonds.remove(diamond)
+            continue
+    
+    for diamond in ground_diamonds[:]:
+        diamond.pulse += diamond.pulse_speed * delta_time
+        diamond.rotation_angle += 90 * delta_time
+        
+        if (not diamond.collected and 
+            distance_2d(diamond.pos, player_pos) < 40 and
+            abs(diamond.pos[2] - player_pos[2]) < 120):
+            
+            diamond.collected = True
+            if diamond.type == 0:
+                player_score += regular_diamond_score
+            else:
+                if player_health < max_health:
+                    player_health += special_diamond_health
+            
+            ground_diamonds.remove(diamond)
+            continue
+        
+        if current_time - diamond.ground_time > diamond_ground_lifetime:
+            ground_diamonds.remove(diamond)
+
+#COLLISIONS HERE
+
+
+
 # ==================== MAIN FUNCTION ====================
 def main():
     """Initialize and run the game."""
