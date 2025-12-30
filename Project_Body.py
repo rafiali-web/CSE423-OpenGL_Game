@@ -1760,6 +1760,100 @@ def shoot_pistol():
     bullet = Bullet([muzzle_x, muzzle_y, muzzle_z], player_angle, 0)
     bullets.append(bullet)
 
+def keyboardListener(key, x, y):
+    global player_pos, player_angle, is_dead, player_health, player_score, game_paused, cheat_mode
+    
+    if key == b' ' and not is_dead:
+        game_paused = not game_paused
+        return
+    
+    if key == b'x' or key == b'X':
+        cheat_mode = not cheat_mode
+        return
+    
+    if game_paused:
+        return
+    
+    if is_dead:
+        if key == b'r' or key == b'R':
+            reset_game()
+        return
+    
+    if key == b'c' or key == b'C':
+        toggle_camera_mode()
+        return
+    
+    if key == b'f' or key == b'F':
+        shoot_fire_gun()
+        return
+    
+    if key == b'\t':
+        activate_dash()
+        return
+    
+    if cheat_mode:
+        return
+    
+    move_speed = player_speed * (dash_speed_multiplier if dash_mode else 1.0) * delta_time
+    
+    if key == b'w' or key == b'W':
+        player_pos[0] += move_speed * (-math.sin(math.radians(player_angle)))
+        player_pos[1] += move_speed * math.cos(math.radians(player_angle))
+    
+    elif key == b's' or key == b'S':
+        player_pos[0] -= move_speed * (-math.sin(math.radians(player_angle)))
+        player_pos[1] -= move_speed * math.cos(math.radians(player_angle))
+    
+    elif key == b'a' or key == b'A':
+        player_pos[0] += move_speed * (-math.cos(math.radians(player_angle)))
+        player_pos[1] += move_speed * (-math.sin(math.radians(player_angle)))
+    
+    elif key == b'd' or key == b'D':
+        player_pos[0] -= move_speed * (-math.cos(math.radians(player_angle)))
+        player_pos[1] -= move_speed * (-math.sin(math.radians(player_angle)))
+    
+    elif key == b'q' or key == b'Q':
+        player_angle += 180 * delta_time
+        player_angle = normalize_angle(player_angle)
+    
+    elif key == b'e' or key == b'E':
+        player_angle -= 180 * delta_time
+        player_angle = normalize_angle(player_angle)
+    
+    elif key == b'r' or key == b'R':
+        reset_game()
+    
+    update_player()
+
+def specialKeyListener(key, x, y):
+    global free_camera_pos
+    
+    if game_paused or is_dead:
+        return
+    
+    if camera_mode != 1:
+        return
+    
+    move_amount = free_camera_move_speed * delta_time
+    
+    if key == GLUT_KEY_LEFT:
+        free_camera_pos[0] -= move_amount
+    
+    elif key == GLUT_KEY_RIGHT:
+        free_camera_pos[0] += move_amount
+    
+    elif key == GLUT_KEY_UP:
+        free_camera_pos[2] += move_amount
+    
+    elif key == GLUT_KEY_DOWN:
+        free_camera_pos[2] -= move_amount
+
+def mouseListener(button, state, x, y):
+    if state != GLUT_DOWN or game_paused or is_dead or cheat_mode:
+        return
+    
+    if button == GLUT_LEFT_BUTTON:
+        shoot_pistol()
 
 
 # ==================== MAIN FUNCTION ====================
