@@ -209,6 +209,33 @@ class Bullet:
             self.color = (1.0, 0.5, 0.0)
 
 bullets = []
+# ==================== UTILITY FUNCTIONS ====================
+def distance_2d(pos1, pos2):
+    return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2)
+
+def distance_3d(pos1, pos2):
+    return math.sqrt((pos1[0] - pos2[0])**2 + (pos1[1] - pos2[1])**2 + (pos1[2] - pos2[2])**2)
+
+def normalize_angle(angle):
+    while angle > 360:
+        angle -= 360
+    while angle < 0:
+        angle += 360
+    return angle
+
+def check_boundary_collision(pos):
+    return (abs(pos[0]) > BOUNDARY_SIZE or abs(pos[1]) > BOUNDARY_SIZE)
+
+def bounce_from_boundary(pos):
+    if pos[0] > BOUNDARY_SIZE:
+        pos[0] = BOUNDARY_SIZE - 10
+    elif pos[0] < -BOUNDARY_SIZE:
+        pos[0] = -BOUNDARY_SIZE + 10
+    
+    if pos[1] > BOUNDARY_SIZE:
+        pos[1] = BOUNDARY_SIZE - 10
+    elif pos[1] < -BOUNDARY_SIZE:
+        pos[1] = -BOUNDARY_SIZE + 10
 
 # ==================== LEVEL MANAGEMENT ====================
 def get_level_info():
