@@ -1445,7 +1445,27 @@ def update_diamonds():   #YASIN
         if current_time - diamond.ground_time > diamond_ground_lifetime:
             ground_diamonds.remove(diamond)
 
-#COLLISIONS HERE
+def check_enemy_collisions():
+    global player_health, is_dead
+    
+    if is_dead or game_paused or cheat_mode:
+        return
+    
+    for enemy in enemies:
+        if enemy.alive and distance_2d(player_pos, enemy.pos) < 60:
+            player_health -= 1
+            
+            dx = player_pos[0] - enemy.pos[0]
+            dy = player_pos[1] - enemy.pos[1]
+            dist = math.sqrt(dx*dx + dy*dy)
+            if dist > 0:
+                player_pos[0] += (dx/dist) * 30
+                player_pos[1] += (dy/dist) * 30
+            
+            if player_health <= 0:
+                is_dead = True
+                player_health = 0
+            break
 
 
 
