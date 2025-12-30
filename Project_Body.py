@@ -72,6 +72,19 @@ falling_diamonds = []
 regular_diamond_score = 10
 special_diamond_health = 1
 diamond_ground_lifetime = 10
+# ==================== GOLDEN KEYS ====================
+class GoldenKey:        
+    def __init__(self, pos):
+        self.pos = pos.copy()
+        self.collected = False
+        self.radius = 60
+        self.rotation_angle = 0.0
+        self.hover_offset = 0.0
+        self.hover_speed = 2.0
+        self.color = (1.0, 0.84, 0.0)
+        self.glow_pulse = 0.0
+
+golden_keys = []
 
 # ==================== ENEMIES ====================
 class Enemy:
