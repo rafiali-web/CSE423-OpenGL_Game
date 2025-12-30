@@ -515,6 +515,83 @@ def draw_cannon():
 
 
 #Rafi Start from here
+# ==================== ENEMY DRAWING ====================
+def draw_enemy_health_bar(enemy):
+    if enemy.health < enemy.max_health:
+        glPushMatrix()
+        glTranslatef(0, 0, enemy.size + 40)
+        
+        glColor3f(0.0, 0.0, 0.0)
+        glBegin(GL_QUADS)
+        glVertex3f(-32, -7, 0)
+        glVertex3f(32, -7, 0)
+        glVertex3f(32, 7, 0)
+        glVertex3f(-32, 7, 0)
+        glEnd()
+        
+        glColor3f(0.2, 0.2, 0.2)
+        glBegin(GL_QUADS)
+        glVertex3f(-30, -5, 0)
+        glVertex3f(30, -5, 0)
+        glVertex3f(30, 5, 0)
+        glVertex3f(-30, 5, 0)
+        glEnd()
+        
+        health_ratio = enemy.health / enemy.max_health
+        if enemy.type == 0:
+            glColor3f(1.0, 0.0, 0.0)
+        elif enemy.type == 1:
+            glColor3f(1.0, 0.5, 0.0)
+        else:
+            glColor3f(0.8, 0.0, 0.8)
+        
+        glBegin(GL_QUADS)
+        glVertex3f(-28, -3, 0)
+        glVertex3f(-28 + 56 * health_ratio, -3, 0)
+        glVertex3f(-28 + 56 * health_ratio, 3, 0)
+        glVertex3f(-28, 3, 0)
+        glEnd()
+        
+        glPopMatrix()
+
+def draw_stationary_enemy(enemy):
+    glPushMatrix()
+    glTranslatef(enemy.pos[0], enemy.pos[1], enemy.pos[2])
+    
+    if enemy.damage_timer > 0:
+        glColor3f(1.0, 0.5, 0.5)
+    else:
+        glColor3f(1.0, 0.0, 0.0)
+    
+    glPushMatrix()
+    glScalef(1.2, 0.8, 2.0)
+    glutSolidCube(enemy.size)
+    glPopMatrix()
+    
+    glColor3f(0.8, 0.0, 0.0)
+    glPushMatrix()
+    glTranslatef(0, 0, 90)
+    gluSphere(gluNewQuadric(), 20, 20, 20)
+    glPopMatrix()
+    
+    glColor3f(1.0, 0.5, 0.5)
+    for side in [-1, 1]:
+        glPushMatrix()
+        glTranslatef(side * 30, 0, 60)
+        glRotatef(-90, 1, 0, 0)
+        gluCylinder(gluNewQuadric(), 6, 6, 40, 10, 10)
+        glPopMatrix()
+    
+    glColor3f(0.8, 0.0, 0.0)
+    for side in [-1, 1]:
+        glPushMatrix()
+        glTranslatef(side * 20, 0, -25)
+        glRotatef(180, 1, 0, 0)
+        gluCylinder(gluNewQuadric(), 10, 2, 60, 10, 10)
+        glPopMatrix()
+    
+    draw_enemy_health_bar(enemy)
+    glPopMatrix() # YASIN START FROM HERE
 
 def draw_stationary_enemy(enemy):
     """Draw stationary enemy - looks like player but red."""
