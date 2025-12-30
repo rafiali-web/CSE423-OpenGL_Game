@@ -1719,6 +1719,47 @@ def draw_level_ui():
 
 #input HANDLERS
 
+# ==================== INPUT HANDLERS ====================
+def activate_dash():
+    global dash_mode, dash_timer, dash_cooldown
+    
+    if dash_cooldown <= 0 and not dash_mode and not cheat_mode:
+        dash_mode = True
+        dash_timer = dash_duration
+        dash_cooldown = dash_cooldown_duration
+
+def shoot_fire_gun():
+    global fire_gun_active, fire_gun_cooldown
+    
+    if fire_gun_cooldown <= 0:
+        fire_gun_active = True
+        fire_gun_cooldown = fire_gun_cooldown_duration
+        
+        scale = 1.5
+        gun_offset_x = 30 * scale * math.cos(math.radians(player_angle + 90))
+        gun_offset_y = 30 * scale * math.sin(math.radians(player_angle + 90))
+        
+        muzzle_distance = 140 * scale
+        muzzle_x = player_pos[0] + gun_offset_x + muzzle_distance * (-math.sin(math.radians(player_angle)))
+        muzzle_y = player_pos[1] + gun_offset_y + muzzle_distance * math.cos(math.radians(player_angle))
+        muzzle_z = player_pos[2] + 40 * scale
+        
+        bullet = Bullet([muzzle_x, muzzle_y, muzzle_z], player_angle, 2)
+        bullets.append(bullet)
+
+def shoot_pistol():
+    scale = 1.5
+    gun_offset_x = -30 * scale * math.cos(math.radians(player_angle + 90))
+    gun_offset_y = -30 * scale * math.sin(math.radians(player_angle + 90))
+    
+    muzzle_distance = 60 * scale
+    muzzle_x = player_pos[0] + gun_offset_x + muzzle_distance * (-math.sin(math.radians(player_angle)))
+    muzzle_y = player_pos[1] + gun_offset_y + muzzle_distance * math.cos(math.radians(player_angle))
+    muzzle_z = player_pos[2] + 40 * scale
+    
+    bullet = Bullet([muzzle_x, muzzle_y, muzzle_z], player_angle, 0)
+    bullets.append(bullet)
+
 
 
 # ==================== MAIN FUNCTION ====================
