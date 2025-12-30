@@ -1010,6 +1010,70 @@ def draw_house(house):
     glPopMatrix()
 
 #DRAW_GROUND STARTS FROM HERE
+def draw_ground():
+    glColor3f(0.3, 0.85, 0.4)
+    glBegin(GL_QUADS)
+    glVertex3f(-BOUNDARY_SIZE, -BOUNDARY_SIZE, GROUND_Z)
+    glVertex3f(BOUNDARY_SIZE, -BOUNDARY_SIZE, GROUND_Z)
+    glVertex3f(BOUNDARY_SIZE, BOUNDARY_SIZE, GROUND_Z)
+    glVertex3f(-BOUNDARY_SIZE, BOUNDARY_SIZE, GROUND_Z)
+    glEnd()
+    
+    glPointSize(4)
+    glBegin(GL_POINTS)
+    for _ in range(4000):
+        x = random.uniform(-BOUNDARY_SIZE, BOUNDARY_SIZE)
+        y = random.uniform(-BOUNDARY_SIZE, BOUNDARY_SIZE)
+        grass_color = random.choice([
+            (0.4, 0.95, 0.3),
+            (0.3, 0.9, 0.4),
+            (0.35, 0.85, 0.25),
+            (0.45, 0.9, 0.35),
+            (0.25, 0.8, 0.3),
+        ])
+        glColor3f(*grass_color)
+        glVertex3f(x, y, GROUND_Z + 0.1)
+    glEnd()
+
+def draw_boundary_walls():
+    """Draw walls that properly connect with sky"""
+    wall_height = 800
+    wall_thickness = 50
+    
+    walls = [
+        {'pos': [0, BOUNDARY_SIZE, wall_height/2], 'rotation': 0},
+        {'pos': [0, -BOUNDARY_SIZE, wall_height/2], 'rotation': 0},
+        {'pos': [BOUNDARY_SIZE, 0, wall_height/2], 'rotation': 90},
+        {'pos': [-BOUNDARY_SIZE, 0, wall_height/2], 'rotation': 90},
+    ]
+    
+    for wall in walls:
+        glPushMatrix()
+        glTranslatef(wall['pos'][0], wall['pos'][1], wall['pos'][2])
+        glRotatef(wall['rotation'], 0, 0, 1)
+        
+        glColor3f(0.4, 0.3, 0.2)
+        glBegin(GL_QUADS)
+        # Front
+        glVertex3f(-BOUNDARY_SIZE, -wall_thickness/2, -wall_height/2)
+        glVertex3f(BOUNDARY_SIZE, -wall_thickness/2, -wall_height/2)
+        glVertex3f(BOUNDARY_SIZE, -wall_thickness/2, wall_height/2)
+        glVertex3f(-BOUNDARY_SIZE, -wall_thickness/2, wall_height/2)
+        
+        # Back
+        glVertex3f(-BOUNDARY_SIZE, wall_thickness/2, -wall_height/2)
+        glVertex3f(BOUNDARY_SIZE, wall_thickness/2, -wall_height/2)
+        glVertex3f(BOUNDARY_SIZE, wall_thickness/2, wall_height/2)
+        glVertex3f(-BOUNDARY_SIZE, wall_thickness/2, wall_height/2)
+        
+        # Top
+        glVertex3f(-BOUNDARY_SIZE, -wall_thickness/2, wall_height/2)
+        glVertex3f(BOUNDARY_SIZE, -wall_thickness/2, wall_height/2)
+        glVertex3f(BOUNDARY_SIZE, wall_thickness/2, wall_height/2)
+        glVertex3f(-BOUNDARY_SIZE, wall_thickness/2, wall_height/2)
+        glEnd()
+        
+        glPopMatrix()
 
 
 # ==================== MAIN FUNCTION ====================
