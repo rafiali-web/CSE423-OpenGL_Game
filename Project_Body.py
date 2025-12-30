@@ -72,6 +72,7 @@ falling_diamonds = []
 regular_diamond_score = 10
 special_diamond_health = 1
 diamond_ground_lifetime = 10
+
 # ==================== GOLDEN KEYS ====================
 class GoldenKey:        
     def __init__(self, pos):
