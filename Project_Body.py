@@ -592,86 +592,30 @@ def draw_stationary_enemy(enemy):
     draw_enemy_health_bar(enemy)
     glPopMatrix() # YASIN START FROM HERE
 
-
-
-def draw_stationary_enemy(enemy):
-    """Draw stationary enemy - looks like player but red."""
+def draw_patrolling_enemy(enemy):   #YASIN here
     glPushMatrix()
     glTranslatef(enemy.pos[0], enemy.pos[1], enemy.pos[2])
     
-    # Flash red when damaged
     if enemy.damage_timer > 0:
-        glColor3f(1.0, 0.5, 0.5)  # Light red when damaged
+        glColor3f(1.0, 0.8, 0.6)
     else:
-        glColor3f(1.0, 0.0, 0.0)  # Bright red
+        glColor3f(0.8, 0.6, 0.4)
     
-    # Enemy torso (similar to player but red)
-    glPushMatrix()
-    glScalef(1.2, 0.8, 2.0)
-    glutSolidCube(enemy.size)
-    glPopMatrix()
-    
-    # Enemy head
-    glColor3f(0.8, 0.0, 0.0)  # Dark red head
-    glPushMatrix()
-    glTranslatef(0, 0, 90)
-    gluSphere(gluNewQuadric(), 20, 20, 20)
-    glPopMatrix()
-    
-    # Enemy arms
-    glColor3f(1.0, 0.5, 0.5)  # Light red arms
-    for side in [-1, 1]:
-        glPushMatrix()
-        glTranslatef(side * 30, 0, 60)
-        glRotatef(-90, 1, 0, 0)
-        gluCylinder(gluNewQuadric(), 6, 6, 40, 10, 10)
-        glPopMatrix()
-    
-    # Enemy legs
-    glColor3f(0.8, 0.0, 0.0)  # Dark red legs
-    for side in [-1, 1]:
-        glPushMatrix()
-        glTranslatef(side * 20, 0, -25)
-        glRotatef(180, 1, 0, 0)
-        gluCylinder(gluNewQuadric(), 10, 2, 60, 10, 10)
-        glPopMatrix()
-    
-    # Health bar above enemy
-    draw_enemy_health_bar(enemy)
-    
-    glPopMatrix()
-    
-
-def draw_patrolling_enemy(enemy):
-    """Draw patrolling enemy - giant (3x bigger)."""
-    glPushMatrix()
-    glTranslatef(enemy.pos[0], enemy.pos[1], enemy.pos[2])
-    
-    # Flash when damaged
-    if enemy.damage_timer > 0:
-        glColor3f(1.0, 0.8, 0.6)  # Light brown when damaged
-    else:
-        glColor3f(0.8, 0.6, 0.4)  # Brown giant
-    
-    # Giant body (3x scale)
     glPushMatrix()
     glScalef(3.0, 3.0, 3.0)
     
-    # Giant torso
     glPushMatrix()
     glScalef(1.2, 0.8, 2.0)
-    glutSolidCube(20)  # Smaller base cube, scaled by 3x overall
+    glutSolidCube(20)
     glPopMatrix()
     
-    # Giant head
-    glColor3f(0.7, 0.5, 0.3)  # Darker brown head
+    glColor3f(0.7, 0.5, 0.3)
     glPushMatrix()
     glTranslatef(0, 0, 30)
-    glutSolidSphere(15, 20, 20)
+    gluSphere(gluNewQuadric(), 15, 20, 20)
     glPopMatrix()
     
-    # Giant arms
-    glColor3f(0.9, 0.7, 0.5)  # Light brown arms
+    glColor3f(0.9, 0.7, 0.5)
     for side in [-1, 1]:
         glPushMatrix()
         glTranslatef(side * 20, 0, 20)
@@ -679,8 +623,7 @@ def draw_patrolling_enemy(enemy):
         gluCylinder(gluNewQuadric(), 5, 5, 30, 10, 10)
         glPopMatrix()
     
-    # Giant legs
-    glColor3f(0.6, 0.4, 0.2)  # Dark brown legs
+    glColor3f(0.6, 0.4, 0.2)
     for side in [-1, 1]:
         glPushMatrix()
         glTranslatef(side * 13, 0, -10)
@@ -688,115 +631,75 @@ def draw_patrolling_enemy(enemy):
         gluCylinder(gluNewQuadric(), 8, 3, 40, 10, 10)
         glPopMatrix()
     
-    glPopMatrix()  # End 3x scale
+    glPopMatrix()
     
-    # Health bar above giant
     draw_enemy_health_bar(enemy)
-    
     glPopMatrix()
 
 def draw_chasing_enemy(enemy):
-    """Draw chasing enemy - dinosaur."""
     glPushMatrix()
     glTranslatef(enemy.pos[0], enemy.pos[1], enemy.pos[2])
     
-    # Flash when damaged
     if enemy.damage_timer > 0:
-        glColor3f(0.6, 1.0, 0.4)  # Light green when damaged
+        glColor3f(1.0, 0.5, 1.0)
     else:
-        glColor3f(0.4, 0.8, 0.2)  # Green dinosaur
+        glColor3f(0.8, 0.0, 0.8)
     
-    # Dinosaur body
     glPushMatrix()
-    glScalef(1.5, 0.8, 0.7)
-    glutSolidSphere(enemy.radius * 0.8, 20, 20)
+    glScalef(1.8, 1.0, 0.9)
+    gluSphere(gluNewQuadric(), enemy.radius * 0.8, 20, 20)
     glPopMatrix()
     
-    # Dinosaur head
     glPushMatrix()
-    glTranslatef(enemy.radius * 1.2, 0, enemy.radius * 0.3)
-    glutSolidSphere(enemy.radius * 0.5, 15, 15)
-    # Mouth
-    glColor3f(0.8, 0.2, 0.2)
+    glTranslatef(enemy.radius * 1.4, 0, enemy.radius * 0.3)
+    gluSphere(gluNewQuadric(), enemy.radius * 0.6, 15, 15)
+    
+    glColor3f(1.0, 1.0, 0.0)
     glPushMatrix()
     glTranslatef(enemy.radius * 0.3, 0, 0)
-    glutSolidCone(enemy.radius * 0.2, enemy.radius * 0.4, 8, 8)
+    glRotatef(-90, 1, 0, 0)
+    gluCylinder(gluNewQuadric(), enemy.radius * 0.2, 0, enemy.radius * 0.4, 8, 8)
     glPopMatrix()
-    glColor3f(0.4, 0.8, 0.2)  # Back to green
+    glColor3f(0.8, 0.0, 0.8)
     glPopMatrix()
     
-    # Dinosaur tail
     glPushMatrix()
-    glTranslatef(-enemy.radius * 1.2, 0, 0)
+    glTranslatef(-enemy.radius * 1.4, 0, 0)
     glRotatef(-30, 0, 1, 0)
-    glutSolidCone(enemy.radius * 0.4, enemy.radius * 1.5, 10, 10)
+    glRotatef(-90, 1, 0, 0)
+    gluCylinder(gluNewQuadric(), enemy.radius * 0.5, 0, enemy.radius * 1.8, 10, 10)
     glPopMatrix()
     
-    # Dinosaur legs
-    glColor3f(0.3, 0.7, 0.1)
+    glColor3f(0.6, 0.0, 0.6)
     leg_positions = [
-        (0.6, -0.5, -0.8),  # Front right
-        (0.6, 0.5, -0.8),   # Front left
-        (-0.6, -0.5, -0.8), # Back right
-        (-0.6, 0.5, -0.8)   # Back left
+        (0.7, -0.6, -1.0),
+        (0.7, 0.6, -1.0),
+        (-0.7, -0.6, -1.0),
+        (-0.7, 0.6, -1.0)
     ]
     
     for dx, dy, dz in leg_positions:
         glPushMatrix()
         glTranslatef(enemy.radius * dx, enemy.radius * dy, enemy.radius * dz)
         glRotatef(90, 1, 0, 0)
-        gluCylinder(gluNewQuadric(), enemy.radius * 0.2, enemy.radius * 0.15, enemy.radius * 0.8, 8, 8)
+        gluCylinder(gluNewQuadric(), enemy.radius * 0.25, enemy.radius * 0.2, enemy.radius * 1.0, 8, 8)
         glPopMatrix()
     
-    # Health bar above dinosaur
     draw_enemy_health_bar(enemy)
-    
-    glPopMatrix()
-
-def draw_enemy_health_bar(enemy):
-    """Draw health bar above enemy."""
-    if enemy.health < enemy.max_health:  # Only show if damaged
-        glPushMatrix()
-        glTranslatef(0, 0, enemy.size + 30)  # Position above enemy
-        
-        # Background
-        glColor3f(0.2, 0.2, 0.2)
-        glBegin(GL_QUADS)
-        glVertex2f(-30, -5)
-        glVertex2f(30, -5)
-        glVertex2f(30, 5)
-        glVertex2f(-30, 5)
-        glEnd()
-        
-        # Health
-        health_ratio = enemy.health / enemy.max_health
-        if enemy.type == 0:  # Red human
-            glColor3f(1.0, 0.0, 0.0)
-        elif enemy.type == 1:  # Giant
-            glColor3f(1.0, 0.5, 0.0)
-        else:  # Dinosaur
-            glColor3f(0.0, 1.0, 0.0)
-        
-        glBegin(GL_QUADS)
-        glVertex2f(-28, -3)
-        glVertex2f(-28 + 56 * health_ratio, -3)
-        glVertex2f(-28 + 56 * health_ratio, 3)
-        glVertex2f(-28, 3)
-        glEnd()
-        
-        glPopMatrix()
+    glPopMatrix()        
 
 def draw_enemy(enemy):
-    """Draw enemy based on type."""
     if not enemy.alive:
         return
     
-    if enemy.type == 0:  # Stationary - red human
+    if enemy.type == 0:
         draw_stationary_enemy(enemy)
-    elif enemy.type == 1:  # Patrolling - giant
+    elif enemy.type == 1:
         draw_patrolling_enemy(enemy)
-    else:  # Chasing - dinosaur
+    elif enemy.type == 2:
         draw_chasing_enemy(enemy)
+###ENEMY SHOOTING STARTS HERE
+
 # ==================== DIAMOND DRAWING ====================
 def draw_diamond(diamond):
     """Draw a diamond with effects."""
