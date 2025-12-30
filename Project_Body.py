@@ -1262,6 +1262,20 @@ def update_delta_time():
         delta_time = 0.016
 
 
+def update_dash_mode():    #YASIN
+    global dash_timer, dash_mode, dash_cooldown
+    
+    if dash_timer > 0:
+        dash_timer -= delta_time
+        if dash_timer <= 0:
+            dash_mode = False
+            dash_timer = 0
+    
+    if dash_cooldown > 0:
+        dash_cooldown -= delta_time
+        if dash_cooldown <= 0:
+            dash_cooldown = 0
+
 # ==================== MAIN FUNCTION ====================
 def main():
     """Initialize and run the game."""
