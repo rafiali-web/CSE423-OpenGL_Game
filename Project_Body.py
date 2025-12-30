@@ -593,52 +593,7 @@ def draw_stationary_enemy(enemy):
     draw_enemy_health_bar(enemy)
     glPopMatrix() # YASIN START FROM HERE
 
-def draw_stationary_enemy(enemy):
-    """Draw stationary enemy - looks like player but red."""
-    glPushMatrix()
-    glTranslatef(enemy.pos[0], enemy.pos[1], enemy.pos[2])
-    
-    # Flash red when damaged
-    if enemy.damage_timer > 0:
-        glColor3f(1.0, 0.5, 0.5)  # Light red when damaged
-    else:
-        glColor3f(1.0, 0.0, 0.0)  # Bright red
-    
-    # Enemy torso (similar to player but red)
-    glPushMatrix()
-    glScalef(1.2, 0.8, 2.0)
-    glutSolidCube(enemy.size)
-    glPopMatrix()
-    
-    # Enemy head
-    glColor3f(0.8, 0.0, 0.0)  # Dark red head
-    glPushMatrix()
-    glTranslatef(0, 0, 90)
-    gluSphere(gluNewQuadric(), 20, 20, 20)
-    glPopMatrix()
-    
-    # Enemy arms
-    glColor3f(1.0, 0.5, 0.5)  # Light red arms
-    for side in [-1, 1]:
-        glPushMatrix()
-        glTranslatef(side * 30, 0, 60)
-        glRotatef(-90, 1, 0, 0)
-        gluCylinder(gluNewQuadric(), 6, 6, 40, 10, 10)
-        glPopMatrix()
-    
-    # Enemy legs
-    glColor3f(0.8, 0.0, 0.0)  # Dark red legs
-    for side in [-1, 1]:
-        glPushMatrix()
-        glTranslatef(side * 20, 0, -25)
-        glRotatef(180, 1, 0, 0)
-        gluCylinder(gluNewQuadric(), 10, 2, 60, 10, 10)
-        glPopMatrix()
-    
-    # Health bar above enemy
-    draw_enemy_health_bar(enemy)
-    
-    glPopMatrix()
+
 
 def draw_patrolling_enemy(enemy):
     """Draw patrolling enemy - giant (3x bigger)."""
