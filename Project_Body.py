@@ -1326,6 +1326,54 @@ def update_enemies():
         
         if check_boundary_collision(enemy.pos):
             bounce_from_boundary(enemy.pos)
+ 
+def update_bullets():
+    """FIXED: Cannon (type 2) now deals 5 damage - one-shots all enemies!"""
+    global player_score, enemies_killed_this_level
+    
+    if game_paused:
+        return
+    
+    for bullet in bullets[:]:
+        if not bullet.alive:
+            bullets.remove(bullet)
+            continue
+        
+        move_distance = bullet.speed * delta_time
+        bullet.pos[0] += move_distance * (-math.sin(math.radians(bullet.angle)))
+        bullet.pos[1] += move_distance * math.cos(math.radians(bullet.angle))
+        
+        if bullet.type == 2:
+            bullet.velocity_z -= bullet.gravity * delta_time
+            bullet.pos[2] += bullet.velocity_z * delta_time
+            
+            if bullet.pos[2] <= GROUND_Z:
+                bullet.alive = False
+                continue
+        
+        bullet.distance_traveled += move_distance
+        
+        if bullet.distance_traveled > bullet.max_distance:
+            bullet.alive = False
+            continue
+        
+        if check_boundary_collision(bullet.pos):
+            bullet.alive = False
+            continue
+        
+        # FIXED: Use bullet.damage instead of hardcoded 1
+        for enemy in enemies:
+            if enemy.alive and distance_2d(bullet.pos, enemy.pos) < (bullet.radius + enemy.radius):
+                enemy.health -= bullet.damage  # Pistol deals 1, Cannon deals 5
+                enemy.damage_timer = enemy.damage_duration
+                
+                if enemy.health <= 0:
+                    enemy.alive = False
+                    player_score += enemy.score_value
+                    enemies_killed_this_level += 1
+                
+                bullet.alive = False
+                break           
 
 
 # ==================== MAIN FUNCTION ====================
